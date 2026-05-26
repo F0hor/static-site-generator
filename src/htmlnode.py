@@ -21,3 +21,24 @@ class HTMLNode():
     def __repr__(self):
         return f"HTMLNode({self.tag}, {self.props_to_html()}, {self.value}, {self.children})"
 
+
+class LeafNode(HTMLNode):
+    def __init__(self, tag, value, prop=None):
+        super().__init__(tag, value, prop=prop)
+
+    def to_html(self):
+        if self.value is None:
+            raise ValueError()
+
+        if self.tag is not None:
+            opening_tag = f'<{self.tag}{self.props_to_html()}>'
+            closing_tag = f'</{self.tag}>'
+        else:
+            opening_tag = ''
+            closing_tag = ''
+
+        return f'{opening_tag}{self.value}{closing_tag}'
+
+    def __repr__(self):
+        return f'LeafNode({self.tag}, {self.props_to_html()}, {self.value})'
+
