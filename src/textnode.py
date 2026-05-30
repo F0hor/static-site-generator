@@ -4,7 +4,7 @@ from enum import Enum
 class TextType(Enum):
     TEXT = "text"
     BOLD = "bold"
-    ITALIT = "italic"
+    ITALIC = "italic"
     CODE = "code"
     LINK = "link"
     IMAGE = "image"

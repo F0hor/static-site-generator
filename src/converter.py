@@ -27,6 +27,19 @@ def text_node_to_html_node(text_node: TextNode) -> LeafNode:
         return LeafNode('img', '', prop={'src': text_node.url, 'alt': text_node.text})
 
 
+def text_to_textnodes(text: str) -> list[TextNode]:
+    nodes = [TextNode(text, TextType.TEXT)]
+
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_link(nodes)
+
+    nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD)
+    nodes = split_nodes_delimiter(nodes, "`", TextType.CODE)
+    nodes = split_nodes_delimiter(nodes, "_", TextType.ITALIC)
+
+    return nodes
+
+
 def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: TextType) -> list[TextNode]:
     new_nodes = []
 
