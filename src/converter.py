@@ -1,3 +1,5 @@
+import re
+
 from textnode import TextType, TextNode
 from htmlnode import LeafNode
 
@@ -45,3 +47,44 @@ def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: 
 
     return new_nodes
 
+
+def split_nodes_image(old_nodes: list[TextNode]) -> list[TextNode]:
+    return split_nodes_by_func(old_nodes, extract_markdown_images, '!', TextType.IMAGE)
+
+
+def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
+    return split_nodes_by_func(old_nodes, extract_markdown_links, '', TextType.LINK)
+
+
+def split_nodes_by_func(old_nodes: list[TextNode], split_func, split_str_begin: str, text_type: TextType) -> list[TextNode]:
+    new_nodes = []
+
+    for node in old_nodes:
+        if node.text_type != TextType.TEXT:
+            new_nodes.append(node)
+            continue
+
+        images = split_func(node.text)
+        if len(images) == 0:
+            new_nodes.append(node)
+            continue
+
+        text = node.text
+        for alt, url in images:
+            parts = text.split(f'{split_str_begin}[{alt}]({url})')
+            new_nodes.append(TextNode(parts[0], TextType.TEXT))
+            new_nodes.append(TextNode(alt, text_type, url=url))
+            text = parts[1]
+
+        if len(text) > 0:
+            new_nodes.append(TextNode(text, TextType.TEXT))
+
+    return new_nodes
+
+
+def extract_markdown_images(text: str) -> list[tuple]:
+    return re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+
+
+def extract_markdown_links(text: str) -> list[tuple]:
+    return re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
