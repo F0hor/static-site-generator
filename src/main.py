@@ -1,5 +1,6 @@
 import os
 import shutil
+import sys
 
 from block_converter import markdown_to_blocks, markdown_to_html_node
 from textnode import BlockType
@@ -32,7 +33,7 @@ def extrect_title(markdown: str) -> str:
     raise Exception('Missing title in form of h1 header')
 
 
-def generate_page(from_path: str, template_path: str, dest_path: str):
+def generate_page(from_path: str, template_path: str, dest_path: str, basepath: str):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
 
     with open(from_path, 'r') as f:
@@ -46,32 +47,39 @@ def generate_page(from_path: str, template_path: str, dest_path: str):
 
     html = template.replace('{{ Title }}', title).replace('{{ Content }}', html_body)
 
+    html = html.replace('href="/', f'href="{basepath}').replace('src="/', f'src="{basepath}')
+
     with open(dest_path, "w") as f:
         f.write(html)
 
 
-def generate_content(source: str, template: str, dest: str):
+def generate_content(source: str, template: str, dest: str, basepath: str):
     for name in os.listdir(source):
         source_path = os.path.join(source, name)
         dest_path = os.path.join(dest, name)
 
         if os.path.isfile(source_path):
             dest_path = dest_path.replace('.md', '.html')
-            generate_page(source_path, template, dest_path)
+            generate_page(source_path, template, dest_path, basepath)
         else:
             os.mkdir(dest_path)
-            generate_content(source_path, template, dest_path)
+            generate_content(source_path, template, dest_path, basepath)
 
 
 def main():
     shutil.rmtree(PATH_TO_PUBLIC)
     os.mkdir(PATH_TO_PUBLIC)
 
+    if len(sys.argv) > 1:
+        basepath = sys.argv[1]
+    else:
+        basepath = '/'
+
     copy_content_to_folder(PATH_TO_STATIC, PATH_TO_PUBLIC)
-    generate_content(PATH_TO_CONTENT, PATH_TO_TEMPLATE, PATH_TO_PUBLIC)
+    generate_content(PATH_TO_CONTENT, PATH_TO_TEMPLATE, PATH_TO_PUBLIC, basepath)
     
 
-PATH_TO_PUBLIC = 'public/'
+PATH_TO_PUBLIC = 'docs/'
 PATH_TO_STATIC = 'static/'
 PATH_TO_CONTENT = 'content/'
 PATH_TO_TEMPLATE = 'template.html'
