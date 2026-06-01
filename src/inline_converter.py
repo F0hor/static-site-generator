@@ -4,6 +4,16 @@ from textnode import TextType, TextNode
 from htmlnode import LeafNode
 
 
+def text_to_htmlnodes(text: str) -> list[LeafNode]:
+    textnodes = text_to_textnodes(text)
+
+    lst = []
+    for node in textnodes:
+        lst.append(text_node_to_html_node(node))
+
+    return lst
+
+
 def text_node_to_html_node(text_node: TextNode) -> LeafNode:
     if text_node is None or text_node.text_type is None or text_node.text_type not in TextType:
         raise Exception("Invalid text node tag")
