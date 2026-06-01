@@ -59,6 +59,7 @@ def generate_content(source: str, template: str, dest: str):
             dest_path = dest_path.replace('.md', '.html')
             generate_page(source_path, template, dest_path)
         else:
+            os.mkdir(dest_path)
             generate_content(source_path, template, dest_path)
 
 

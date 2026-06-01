@@ -50,7 +50,7 @@ def text_to_child(text: str, block_type: BlockType) -> HTMLNode:
 
 def heading_to_child(text: str) -> HTMLNode:
     num_hashtag = 0
-    while text[num_hashtag] != '#':
+    while text[num_hashtag] == '#':
         num_hashtag += 1
 
     return LeafNode(f'h{num_hashtag}', text[num_hashtag:].strip())
@@ -61,7 +61,7 @@ def list_to_child(text: str, block_type: BlockType) -> HTMLNode:
     lst = []
 
     for i, l in enumerate(lines):
-        lst.append(LeafNode('li', l[l.index(' ')+1:]))
+        lst.append(ParentNode('li', text_to_htmlnodes(l[l.index(' ')+1:])))
 
     return ParentNode(
         'ul' if block_type == BlockType.UNLIST else 'ol',
